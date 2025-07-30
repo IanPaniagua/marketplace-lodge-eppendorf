@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
-  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult,
   signOut as firebaseSignOut, 
   onAuthStateChanged,
   User
@@ -31,6 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Check for redirect result when component mounts
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // User signed in via redirect
+          console.log('User signed in via redirect:', result.user);
+        }
+      } catch (error) {
+        console.error('Error getting redirect result:', error);
+      }
+    };
+
+    checkRedirectResult();
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
       if (firebaseUser) {
         setUser({
@@ -57,12 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       setLoading(true);
-      await signInWithPopup(auth, googleProvider);
+      await signInWithRedirect(auth, googleProvider);
     } catch (error) {
       console.error('Error signing in with Google:', error);
-      throw error;
-    } finally {
       setLoading(false);
+      throw error;
     }
   };
 

@@ -15,15 +15,21 @@ export default function AuthButton({ mode }: AuthButtonProps) {
   const handleGoogleAuth = async () => {
     try {
       setIsLoading(true);
+      // Show a message to the user that they will be redirected
+      console.log('Redirecting to Google for authentication...');
       await signInWithGoogle();
+      // Note: The page will redirect, so this code won't execute
     } catch (error) {
       console.error('Error during authentication:', error);
-    } finally {
       setIsLoading(false);
     }
   };
 
-  const buttonText = mode === 'signin' ? 'Sign In with Google' : 'Sign Up with Google';
+  const buttonText = isLoading 
+    ? 'Redirecting to Google...' 
+    : mode === 'signin' 
+      ? 'Sign In with Google' 
+      : 'Sign Up with Google';
 
   return (
     <Button
@@ -31,6 +37,7 @@ export default function AuthButton({ mode }: AuthButtonProps) {
       isLoading={isLoading}
       variant="outline"
       className="flex items-center gap-2 w-full max-w-sm"
+      disabled={isLoading}
     >
       {!isLoading && (
         <svg className="h-5 w-5" viewBox="0 0 24 24">
